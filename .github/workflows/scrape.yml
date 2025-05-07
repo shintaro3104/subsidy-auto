@@ -1,0 +1,43 @@
+name: Daily subsidy scrape
+
+on:
+  schedule:               # 毎日 03:00 JST（＝18:00 UTC）
+    - cron: '0 18 * * *'
+  workflow_dispatch:      # 手動トリガー
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write service_account.json
+        run: echo "$SERVICE_ACCOUNT_JSON" > service_account.json
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+
+      - name: Run subsidy diff‑checker
+        env:
+          SHEET_ID:      ${{ secrets.SHEET_ID }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: python scripts/scrape_subsidy.py
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ subsidy-auto workflow failed"}' \
+          "$SLACK_WEBHOOK"
