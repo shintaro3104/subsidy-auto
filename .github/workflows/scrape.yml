@@ -1,43 +1,32 @@
 name: Daily subsidy scrape
 
 on:
-  schedule:               # 毎日 15:00 JST（＝06:00 UTC）
-    - cron: '0 06 * * *'
-  workflow_dispatch:      # 手動トリガー
+  schedule:
+    - cron: '0 18 * * *'   # JST 03:00
+  workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+    - name: Install deps
+      run: pip install -r requirements.txt
 
-      - name: Write service_account.json
-        run: echo "$SERVICE_ACCOUNT_JSON" > service_account.json
-        env:
-          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+    - name: Write service_account.json
+      run: echo "$SERVICE_ACCOUNT_JSON" > service_account.json
+      env:
+        SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
-      - name: Run subsidy diff‑checker
-        env:
-          SHEET_ID:      ${{ secrets.SHEET_ID }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: python scripts/scrape_subsidy.py
-
-      - name: Notify Slack on failure
-        if: failure()
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"❌ subsidy-auto workflow failed"}' \
-          "$SLACK_WEBHOOK"
+    - name: Run scrape_subsidy.py
+      env:
+        SHEET_ID:      ${{ secrets.SHEET_ID }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      run: python scripts/scrape_subsidy.py
