@@ -1,5 +1,5 @@
 gspread
 slack-sdk
-python-dotenv      # .env を使い続ける場合
+python-dotenv
 requests
 beautifulsoup4
