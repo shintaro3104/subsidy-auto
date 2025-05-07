@@ -1,0 +1,5 @@
+gspread
+slack-sdk
+python-dotenv      # .env を使い続ける場合
+requests
+beautifulsoup4
