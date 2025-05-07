@@ -3,7 +3,7 @@ name: Daily subsidy scrape
 on:
   # 毎日 15:00 JST（06:00 UTC）に自動実行
   schedule:
-    - cron: '0 06 * * *'
+    - cron: '0 6 * * *'
   # 手動トリガーも可能
   workflow_dispatch:
 
