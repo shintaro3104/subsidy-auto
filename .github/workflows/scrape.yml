@@ -1,8 +1,8 @@
 name: Daily subsidy scrape
 
 on:
-  schedule:               # 毎日 03:00 JST（＝18:00 UTC）
-    - cron: '0 18 * * *'
+  schedule:               # 毎日 15:00 JST（＝06:00 UTC）
+    - cron: '0 06 * * *'
   workflow_dispatch:      # 手動トリガー
 
 jobs:
